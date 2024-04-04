@@ -1,5 +1,11 @@
 {
     "engines": {
-      "node": "18.x"
-    }
-  }
+        "node": "20.x"
+    },
+    "builds": [
+        {
+            "src": "requirements.txt",
+            "use": "@vercel/python"
+        }
+    ]
+}
