@@ -16,7 +16,7 @@ def run_colab():
     # Download the Colab notebook
     gdown.download(
         "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN",
-        "smartBot.ipynb",
+        "data/smartBot.ipynb",
         quiet=False,
     )
 
