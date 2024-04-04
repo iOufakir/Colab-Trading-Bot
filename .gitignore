@@ -37,3 +37,4 @@ ENV/
 *.tmp
 *.csv
 .DS_Store
+.vercel
