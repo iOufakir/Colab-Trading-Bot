@@ -5,13 +5,22 @@ from nbconvert import HTMLExporter
 import requests
 import os
 import logging
+import schedule
+import time
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
+    print('Hello world', flush=True);
     return "Home Page Route"
 
+
+def schedule_ai_bot():
+    schedule.every(1).minutes.do(home)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
 
 @app.route("/api/run-colab")
 def run_colab():
@@ -47,7 +56,7 @@ def execute_notebook(notebook_path):
     kernel_name = nb.metadata.kernelspec.name
     app.logger.info(kernel_name)
     # Create an ExecutePreprocessor
-    ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
+    ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name, allow_errors=True)
 
     executed_nb = ""
     try:
@@ -71,5 +80,6 @@ app.logger.handlers = gunicorn_logger.handlers
 app.logger.setLevel(gunicorn_logger.level)
     
 if __name__ == "__main__":
+    schedule_ai_bot()
     app.run()
 
