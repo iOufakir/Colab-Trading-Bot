@@ -16,12 +16,12 @@ def home():
 @app.route("/api/run-colab")
 def run_colab():
     colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    colabOutputFile = "./data/smartBot.ipynb"
+    outputFile = "/tmp/smartBot.ipynb"
     
-    download_file(colabUrl, colabOutputFile)
-
+    download_file(colabUrl, outputFile)
+    
     # Execute the downloaded notebook
-    result = execute_notebook(colabOutputFile)
+    result = execute_notebook(outputFile)
 
     return render_template_string(result)
 
@@ -44,13 +44,14 @@ def execute_notebook(notebook_path):
 
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
+    print(kernel_name)
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
 
     executed_nb = ""
     try:
         print("Executing notebook...")
-        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "./data"}})
+        executed_nb, _ = ep.preprocess(nb, {})
         print("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"
