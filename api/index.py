@@ -1,32 +1,37 @@
-from flask import Flask, jsonify, render_template_string
-import gdown
+from flask import Flask, render_template_string
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import HTMLExporter
-import os
+import requests
 
 app = Flask(__name__)
 
-@app.route('/')
+
+@app.route("/")
 def home():
-    return 'Home Page Route'
+    return "Home Page Route"
 
 
 @app.route("/api/run-colab")
 def run_colab():
-     # Specify a custom directory for the cookie file
-    os.environ["GDOWN_COOKIES"] = "/dev/null"
-    # Download the Colab notebook
-    gdown.download(
-        "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN",
-        "data/smartBot.ipynb",
-        quiet=False
-    )
+    colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
+    colabOutputFile = "smartBot.ipynb"
+    
+    download_file(colabUrl, colabOutputFile)
 
     # Execute the downloaded notebook
-    result = execute_notebook("data/smartBot.ipynb")
+    result = execute_notebook(colabOutputFile)
 
     return render_template_string(result)
+
+
+def download_file(url, output):
+    try:
+        response = requests.get(url, allow_redirects=True)
+        with open(output, "wb") as f:
+            f.write(response.content)
+    except Exception as e:
+        print(f"Error downloading file: {e}")
 
 
 def execute_notebook(notebook_path):
@@ -38,8 +43,8 @@ def execute_notebook(notebook_path):
     kernel_name = nb.metadata.kernelspec.name
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
-    
-    executed_nb = ''
+
+    executed_nb = ""
     try:
         print("Executing notebook...")
         executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "."}})
@@ -48,7 +53,7 @@ def execute_notebook(notebook_path):
         execution_result = f"Error executing notebook: {str(e)}"
         print(execution_result)
         return execution_result
-    
+
     # Convert executed notebook to HTML for display
     html_exporter = HTMLExporter()
     html_body, _ = html_exporter.from_notebook_node(executed_nb)

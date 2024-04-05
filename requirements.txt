@@ -1,4 +1,4 @@
 Flask
-gdown
+requests
 nbformat
 nbconvert
