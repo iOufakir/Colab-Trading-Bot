@@ -18,7 +18,7 @@ def home():
 
 
 def schedule_ai_bot():
-    schedule.every(1).hours.do(run_colab)
+    schedule.every(6).hours.do(run_colab)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -98,8 +98,7 @@ logger = _init_logger()  # Initialize logger
 
 
 if __name__ == "__main__":
-    send_email("Hello", "Colab Result", "dev@il-yo.com", "contact@il-yo.com")
     port = int(os.environ.get("PORT", 5000))
-    app.run(port=port)
+    app.run(host="0.0.0.0", port=port)
     schedule_ai_bot()
 
