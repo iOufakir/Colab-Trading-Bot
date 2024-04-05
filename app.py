@@ -3,6 +3,7 @@ import nbformat
 from nbconvert import HTMLExporter
 import requests, subprocess
 import os, sys, logging, schedule, time
+from threading import Thread
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
@@ -11,6 +12,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
+colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
+outputFile = "./data/smartBot.ipynb"
+    
 @app.route("/")
 def home():
     logger.info('Hello')
@@ -23,39 +27,42 @@ def schedule_ai_bot():
         schedule.run_pending()
         time.sleep(1)
 
-@app.route("/api/run-colab")
+@app.route("/api/run-colab", methods=['HEAD'])
 def run_colab():
-    colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    outputFile = "./data/smartBot.ipynb"
+    # Download file from gdrive
+    download_file()
+    
+    # Background task
+    background_task = Thread(target=execute_background_task)
+    background_task.start()
 
-    download_file(colabUrl, outputFile)
+    return "Colab notebook has been executed!", 202
 
-    # Execute the downloaded notebook
-    result = execute_notebook(outputFile)
+def execute_background_task():
+    # Execute the colab notebook
+    result = execute_notebook()
+     # Send email with the result
+    send_email(result, "Colab Result", "dev@il-yo.com", "contact@il-yo.com")
 
-    send_email(result, "Colab Result", "dev@il-yo.com", "ouf.ilyas@gmail.com")
-    return render_template_string(result)
-
-
-def download_file(url, output):
+def download_file():
     try:
         os.makedirs(
-            os.path.dirname(output), exist_ok=True
+            os.path.dirname(outputFile), exist_ok=True
         )  # Create folder if it doesn't exist
-        response = requests.get(url, allow_redirects=True)
-        with open(output, "wb") as f:
+        response = requests.get(colabUrl, allow_redirects=True)
+        with open(outputFile, "wb") as f:
             f.write(response.content)
     except Exception as e:
         logger.error("Error downloading file", exc_info=True)
 
-def execute_notebook(notebook_path):
+def execute_notebook():
     try:
         # Run the Jupyter command to execute the notebook
-        subprocess.run(['jupyter', 'nbconvert', '--to', 'notebook', '--execute', notebook_path])
+        subprocess.run(['jupyter', 'nbconvert', '--to', 'notebook', '--execute', outputFile])
 
         # Read the executed notebook
-        with open(notebook_path, "r", encoding="utf-8") as f:
-            executed_nb = f.read()
+        with open(outputFile, "r", encoding="utf-8") as f:
+            executed_nb = nbformat.read(f, as_version=4)
 
         logger.info("Notebook executed successfully")
 
@@ -64,8 +71,8 @@ def execute_notebook(notebook_path):
         html_body, _ = html_exporter.from_notebook_node(executed_nb)
         return html_body
     except Exception as e:
-        execution_result = f"Error executing notebook: {str(e)}"
-        logger.info(execution_result)
+        execution_result = f"Error executing notebook: {e}"
+        logger.error(execution_result)
         return execution_result
 
 
