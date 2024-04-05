@@ -7,7 +7,3 @@ ipykernel
 jupyter
 ipykernel
 ipython
-jupyter_client
-jupyter_core
-traitlets
-ipython_genutils

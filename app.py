@@ -10,14 +10,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    app.logger.info('this is a INFO message')
     return "Home Page Route"
 
 
 @app.route("/api/run-colab")
 def run_colab():
     colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    outputFile = "/tmp/mybot/smartBot.ipynb"
+    outputFile = "./data/smartBot.ipynb"
 
     download_file(colabUrl, outputFile)
 
@@ -53,7 +52,7 @@ def execute_notebook(notebook_path):
     executed_nb = ""
     try:
         app.logger.info("Executing notebook...")
-        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "/tmp/mybot"}})
+        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "./data"}})
         app.logger.info("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"
