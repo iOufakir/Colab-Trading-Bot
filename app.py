@@ -3,21 +3,18 @@ import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import HTMLExporter
 import requests
-import os
-import logging
-import schedule
-import time
+import os, sys, logging, schedule, time
 
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    print('Hello world', flush=True);
+    logger.info('Hello')
     return "Home Page Route"
 
 
 def schedule_ai_bot():
-    schedule.every(1).minutes.do(home)
+    schedule.every(1).minutes.do(run_colab)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -44,7 +41,7 @@ def download_file(url, output):
         with open(output, "wb") as f:
             f.write(response.content)
     except Exception as e:
-        app.logger.error("Error downloading file", exc_info=True)
+        logger.error("Error downloading file", exc_info=True)
 
 
 def execute_notebook(notebook_path):
@@ -54,18 +51,18 @@ def execute_notebook(notebook_path):
 
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
-    app.logger.info(kernel_name)
+    logger.info(kernel_name)
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name, allow_errors=True)
 
     executed_nb = ""
     try:
-        app.logger.info("Executing notebook...")
+        logger.info("Executing notebook...")
         executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "./data"}})
-        app.logger.info("Notebook executed successfully")
+        logger.info("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"
-        app.logger.info(execution_result)
+        logger.info(execution_result)
         return execution_result
 
     # Convert executed notebook to HTML for display
@@ -73,12 +70,18 @@ def execute_notebook(notebook_path):
     html_body, _ = html_exporter.from_notebook_node(executed_nb)
     return html_body
 
+def _init_logger():
+    logger = logging.getLogger('app')
+    logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    return logger
 
-# app.logger conf
-gunicorn_logger = logging.getLogger('gunicorn.error')
-app.logger.handlers = gunicorn_logger.handlers
-app.logger.setLevel(gunicorn_logger.level)
-    
+
+logger = _init_logger()  # Initialize logger
+
 if __name__ == "__main__":
     schedule_ai_bot()
     app.run()
