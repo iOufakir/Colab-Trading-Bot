@@ -15,7 +15,7 @@ def home():
 @app.route("/api/run-colab")
 def run_colab():
     colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    colabOutputFile = "smartBot.ipynb"
+    colabOutputFile = "/tmp/smartBot.ipynb"
     
     download_file(colabUrl, colabOutputFile)
 
