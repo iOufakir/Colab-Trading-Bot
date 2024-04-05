@@ -16,12 +16,12 @@ def run_colab():
     # Download the Colab notebook
     gdown.download(
         "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN",
-        ".vercel/output/smartBot.ipynb",
+        "data/smartBot.ipynb",
         quiet=False,
     )
 
     # Execute the downloaded notebook
-    result = execute_notebook(".vercel/output/smartBot.ipynb")
+    result = execute_notebook("data/smartBot.ipynb")
 
     return render_template_string(result)
 
