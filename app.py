@@ -14,7 +14,7 @@ def home():
 
 
 def schedule_ai_bot():
-    schedule.every(1).minutes.do(run_colab)
+    schedule.every(10).minutes.do(run_colab)
     while True:
         schedule.run_pending()
         time.sleep(1)
@@ -74,7 +74,7 @@ def _init_logger():
     logger = logging.getLogger('app')
     logger.setLevel(logging.INFO)
     handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter('%(levelname)s - %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
     return logger
@@ -83,7 +83,7 @@ def _init_logger():
 logger = _init_logger()  # Initialize logger
 
 if __name__ == "__main__":
-    schedule_ai_bot()
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+    schedule_ai_bot()
 
