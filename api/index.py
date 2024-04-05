@@ -41,6 +41,7 @@ def execute_notebook(notebook_path):
 
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
+    print(kernel_name)
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
 
