@@ -17,15 +17,8 @@ outputFile = "./data/smartBot.ipynb"
     
 @app.route("/")
 def home():
-    logger.info('Hello')
     return "Home Page Route"
 
-
-def schedule_ai_bot():
-    schedule.every(6).hours.do(run_colab)
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
 
 @app.route("/api/run-colab", methods=['HEAD'])
 def run_colab():
@@ -107,5 +100,4 @@ logger = _init_logger()  # Initialize logger
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-    schedule_ai_bot()
 
