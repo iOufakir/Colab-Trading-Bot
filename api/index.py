@@ -3,6 +3,7 @@ import gdown
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import HTMLExporter
+import os
 
 app = Flask(__name__)
 
@@ -13,11 +14,13 @@ def home():
 
 @app.route("/api/run-colab")
 def run_colab():
+     # Specify a custom directory for the cookie file
+    os.environ["GDOWN_COOKIES"] = "/dev/null"
     # Download the Colab notebook
     gdown.download(
         "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN",
         "data/smartBot.ipynb",
-        quiet=False,
+        quiet=False
     )
 
     # Execute the downloaded notebook
@@ -53,4 +56,4 @@ def execute_notebook(notebook_path):
 
 
 if __name__ == "__main__":
-    app.run(port=3000)
+    app.run()
