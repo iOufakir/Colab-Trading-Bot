@@ -84,5 +84,6 @@ logger = _init_logger()  # Initialize logger
 
 if __name__ == "__main__":
     schedule_ai_bot()
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
