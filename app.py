@@ -16,10 +16,10 @@ def home():
 @app.route("/api/run-colab")
 def run_colab():
     colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    outputFile = "/tmp/smartBot.ipynb"
-    
+    outputFile = "/tmp/mybot/smartBot.ipynb"
+
     download_file(colabUrl, outputFile)
-    
+
     # Execute the downloaded notebook
     result = execute_notebook(outputFile)
 
@@ -28,13 +28,12 @@ def run_colab():
 
 def download_file(url, output):
     try:
-        # Create folder if it doesn't exist
-        os.makedirs(os.path.dirname(output), exist_ok=True)
+        os.makedirs(os.path.dirname(output), exist_ok=True) # Create folder if it doesn't exist
         response = requests.get(url, allow_redirects=True)
         with open(output, "wb") as f:
             f.write(response.content)
     except Exception as e:
-        print(f"Error downloading file: {e}")
+        app.logger.error("Error downloading file", exc_info=True)
 
 
 def execute_notebook(notebook_path):
@@ -44,18 +43,18 @@ def execute_notebook(notebook_path):
 
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
-    print(kernel_name)
+    app.logger.info(kernel_name)
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
 
     executed_nb = ""
     try:
-        print("Executing notebook...")
-        executed_nb, _ = ep.preprocess(nb, {})
-        print("Notebook executed successfully")
+        app.logger.info("Executing notebook...")
+        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "/tmp/mybot"}})
+        app.logger.info("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"
-        print(execution_result)
+        app.logger.info(execution_result)
         return execution_result
 
     # Convert executed notebook to HTML for display
