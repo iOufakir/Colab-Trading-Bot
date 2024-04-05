@@ -1,11 +1,10 @@
 {
-    "version": 2,
     "engines": {
         "node": "18.x"
     },
     "builds": [
         {
-            "src": "requirements.txt",
+            "src": "api/**/*.py",
             "use": "@vercel/python"
         }
     ]

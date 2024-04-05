@@ -3,6 +3,7 @@ import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import HTMLExporter
 import requests
+import os
 
 app = Flask(__name__)
 
@@ -15,7 +16,7 @@ def home():
 @app.route("/api/run-colab")
 def run_colab():
     colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-    colabOutputFile = "/tmp/smartBot.ipynb"
+    colabOutputFile = "./data/smartBot.ipynb"
     
     download_file(colabUrl, colabOutputFile)
 
@@ -27,6 +28,8 @@ def run_colab():
 
 def download_file(url, output):
     try:
+        # Create folder if it doesn't exist
+        os.makedirs(os.path.dirname(output), exist_ok=True)
         response = requests.get(url, allow_redirects=True)
         with open(output, "wb") as f:
             f.write(response.content)
@@ -41,14 +44,13 @@ def execute_notebook(notebook_path):
 
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
-    print(kernel_name)
     # Create an ExecutePreprocessor
     ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
 
     executed_nb = ""
     try:
         print("Executing notebook...")
-        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "."}})
+        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "./data"}})
         print("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"
