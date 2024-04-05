@@ -4,12 +4,13 @@ from nbconvert.preprocessors import ExecutePreprocessor
 from nbconvert import HTMLExporter
 import requests
 import os
+import logging
 
 app = Flask(__name__)
 
-
 @app.route("/")
 def home():
+    app.logger.info('this is a INFO message')
     return "Home Page Route"
 
 
@@ -28,7 +29,9 @@ def run_colab():
 
 def download_file(url, output):
     try:
-        os.makedirs(os.path.dirname(output), exist_ok=True) # Create folder if it doesn't exist
+        os.makedirs(
+            os.path.dirname(output), exist_ok=True
+        )  # Create folder if it doesn't exist
         response = requests.get(url, allow_redirects=True)
         with open(output, "wb") as f:
             f.write(response.content)
@@ -63,5 +66,11 @@ def execute_notebook(notebook_path):
     return html_body
 
 
+# app.logger conf
+gunicorn_logger = logging.getLogger('gunicorn.error')
+app.logger.handlers = gunicorn_logger.handlers
+app.logger.setLevel(gunicorn_logger.level)
+    
 if __name__ == "__main__":
     app.run()
+
