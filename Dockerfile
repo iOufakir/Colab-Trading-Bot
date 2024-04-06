@@ -15,7 +15,7 @@ COPY app.py /opt/app
 WORKDIR /opt/app
 
 # app dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip3 install -r requirements.txt
 
 # Set environment variables
 EXPOSE 5000
