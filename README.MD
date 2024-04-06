@@ -28,5 +28,5 @@ To run the trading bot locally, follow these steps:
 
 - `docker push gcr.io/summer-gadget-X/trading-bot`
 
-- `gcloud run deploy --image gcr.io/summer-gadget-X/trading-bot --platform managed --region us-central1 --port 5000`
+- `gcloud run deploy --image gcr.io/summer-gadget-X/trading-bot --platform managed --region us-central1 --port 5000 --env-vars-file .env.yaml`
 
