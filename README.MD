@@ -5,7 +5,7 @@
 This trading bot project executes a Colab notebook daily at 12pm UTC, fetching data, executing trades, and providing a summary of the trading activity. The bot uses Flask to create a web interface for triggering the trading process.
 
 Notebook used behind the scenes:
-[Notebook used behind the scenes](https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN)
+[Colab](https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN)
 
 ## Installation
 
