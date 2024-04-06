@@ -2,7 +2,8 @@ from flask import Flask, render_template_string
 import nbformat
 from nbconvert import HTMLExporter
 import requests, subprocess
-import os, sys, logging, schedule, time
+from nbconvert.preprocessors import ExecutePreprocessor
+import os, sys, logging
 from threading import Thread
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
@@ -13,7 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 
 colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-outputFile = "./data/smartBot.ipynb"
+outputFile = "/tmp/smartBot.ipynb"
     
 @app.route("/")
 def home():
@@ -34,7 +35,7 @@ def run_colab():
 def execute_background_task():
     # Execute the colab notebook
     result = execute_notebook()
-     # Send email with the result
+    # Send email with the result
     send_email(result, "Colab Result", "dev@il-yo.com", "contact@il-yo.com")
 
 def download_file():
@@ -49,25 +50,30 @@ def download_file():
         logger.error("Error downloading file", exc_info=True)
 
 def execute_notebook():
+    # Load the notebook
+    with open(outputFile, "r", encoding="utf-8") as f:
+        nb = nbformat.read(f, as_version=4)
+
+    # Get the kernel name from notebook metadata
+    kernel_name = nb.metadata.kernelspec.name
+    logger.info(f"kernel: {kernel_name}")
+    # Create an ExecutePreprocessor
+    ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
+
+    executed_nb = ""
     try:
-        # Run the Jupyter command to execute the notebook
-        subprocess.run(['jupyter', 'nbconvert', '--to', 'notebook', '--execute', outputFile])
-
-        # Read the executed notebook
-        with open(outputFile, "r", encoding="utf-8") as f:
-            executed_nb = nbformat.read(f, as_version=4)
-
+        logger.info("Executing notebook...")
+        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "/tmp"}})
         logger.info("Notebook executed successfully")
-
-        # Convert executed notebook to HTML for display
-        html_exporter = HTMLExporter()
-        html_body, _ = html_exporter.from_notebook_node(executed_nb)
-        return html_body
     except Exception as e:
-        execution_result = f"Error executing notebook: {e}"
-        logger.error(execution_result)
+        execution_result = f"Error executing notebook: {str(e)}"
+        logger.info(execution_result)
         return execution_result
-
+    
+    # Convert executed notebook to HTML for display
+    html_exporter = HTMLExporter()
+    html_body, _ = html_exporter.from_notebook_node(executed_nb)
+    return html_body
 
 def send_email(body, subject, sender_email, recipient_email):
     message = Mail(
