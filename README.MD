@@ -22,9 +22,11 @@ To run the trading bot locally, follow these steps:
 
 - Access the api at [http://localhost:5000/api/run-colab](http://localhost:5000/api/run-colab) to trigger the trading process.
 
-## Image deployment into GCP:
+## Image deployment into GCP
 
 - `docker tag trading-bot gcr.io/summer-gadget-X/trading-bot`
+
 - `docker push gcr.io/summer-gadget-X/trading-bot`
+
 - `gcloud run deploy --image gcr.io/summer-gadget-X/trading-bot --platform managed --region us-central1 --port 5000`
 
