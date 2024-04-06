@@ -17,7 +17,6 @@ WORKDIR /opt/app
 # app dependencies
 RUN pip3 install -r requirements.txt
 
-# Set environment variables
 EXPOSE 5000
 ENTRYPOINT [ "python" ]
 CMD ["app.py" ]
