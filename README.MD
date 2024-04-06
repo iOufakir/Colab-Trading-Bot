@@ -17,6 +17,6 @@ To run the trading bot locally, follow these steps:
 
 - Running the app locally using docker:
 `docker build -t smartbot:latest .`
-`docker run --name smartbot -p 5000:5000 smartbot SENDGRID_API_KEY=KEY`
+`docker run --env-file .env --name smartbot -p 5000:5000 smartbot`
 
 Access the api at `http://localhost:5000/api/run-colab` to trigger the trading process.
