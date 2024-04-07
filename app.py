@@ -14,7 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 
 colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
-outputFile = "/tmp/smartBot.ipynb"
+outputFile = "./data/smartBot.ipynb"
     
 @app.route("/")
 def home():
@@ -53,17 +53,16 @@ def execute_notebook():
     # Load the notebook
     with open(outputFile, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
-
     # Get the kernel name from notebook metadata
     kernel_name = nb.metadata.kernelspec.name
     logger.info(f"kernel: {kernel_name}")
     # Create an ExecutePreprocessor
-    ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name)
+    ep = ExecutePreprocessor(timeout=None, kernel_name=kernel_name, store_widget_state=False)
 
     executed_nb = ""
     try:
         logger.info("Executing notebook...")
-        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "/tmp"}})
+        executed_nb, _ = ep.preprocess(nb, {"metadata": {"path": "./data"}})
         logger.info("Notebook executed successfully")
     except Exception as e:
         execution_result = f"Error executing notebook: {str(e)}"

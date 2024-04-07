@@ -39,3 +39,4 @@ ENV/
 *.csv
 .DS_Store
 .vercel
+deploy.sh
