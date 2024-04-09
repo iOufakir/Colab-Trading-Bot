@@ -21,7 +21,7 @@ RUN pip3 install gunicorn
 
 RUN mkdir -p /opt/app
 COPY requirements.txt /opt/app/requirements.txt
-COPY app.py /opt/app
+COPY api/. /opt/app
 WORKDIR /opt/app
 
 # app dependencies
