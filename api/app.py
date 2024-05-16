@@ -45,7 +45,7 @@ def run_gemini():
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     model = genai.GenerativeModel("gemini-pro")
     response = model.generate_content(gemini_prompt)
-    print(response.prompt_feedback)
+    logger.info("Gemini response feedback: %s", response.prompt_feedback)
     return response.text
 
 
