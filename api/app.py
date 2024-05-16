@@ -39,7 +39,7 @@ def run_gemini():
     response = model.generate_content(gemini_prompt)
 
     logger.info("Gemini response feedback: %s", response.prompt_feedback)
-    send_email(response.text, "Gemini Result", "dev@il-yo.com", "dev@il-yo.com")
+    send_email(response.text, "Gemini Result", "dev@il-yo.com", "contact@il-yo.com")
     return response.text
 
 
@@ -59,7 +59,7 @@ def execute_background_task():
     # Execute the colab notebook
     result = execute_notebook()
     # Send email with the result
-    send_email(result, "Colab Result", "dev@il-yo.com", "dev@il-yo.com")
+    send_email(result, "Colab Result", "dev@il-yo.com", "contact@il-yo.com")
 
 
 def download_file():
