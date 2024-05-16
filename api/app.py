@@ -1,7 +1,7 @@
-from flask import Flask, render_template_string
+from flask import Flask
 import nbformat
 from nbconvert import HTMLExporter
-import requests, subprocess
+import requests
 from nbconvert.preprocessors import ExecutePreprocessor
 import os, sys, logging
 from threading import Thread
@@ -10,6 +10,10 @@ from sendgrid.helpers.mail import Mail
 from dotenv import load_dotenv
 import datetime
 import google.generativeai as genai
+import datetime as datetime
+from alpaca.trading.client import TradingClient
+from alpaca.trading.requests import MarketOrderRequest
+from alpaca.trading.enums import OrderSide, TimeInForce
 
 load_dotenv()
 
@@ -18,12 +22,13 @@ app = Flask(__name__)
 colabUrl = "https://drive.google.com/uc?id=1wUm_EV7nivXq7JbN7RUeG2E6w9ismXxN"
 outputFile = "./data/smartBot.ipynb"
 
+targetTicker = "NVDA"
 gemini_prompt = """
-Context: As a financial data model, is it a good idea to buy NVDA stock based on the current date/time? Do quick market research, check Yahoo data, analytics and any provided data and give me a quick response.
+Context: As a financial data model, is it a good idea to buy {0} stock based on the current date/time? Do quick market research, check Yahoo data, analytics and any provided data and give me a quick response.
 
 Details: Reply with one word: positive, neutral or negative. (positive to buy, and negative to sell)
 
-Prompt: Based on the current date/time '%s', should I buy a $NVDA stock right now?
+Prompt: Based on the current date/time '{1}', should I buy a ${0} stock right now?
 """
 
 
@@ -31,15 +36,25 @@ Prompt: Based on the current date/time '%s', should I buy a $NVDA stock right no
 def home():
     return "Home Page Route"
 
+
 @app.route("/api/run-gemini")
 def run_gemini():
     genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
     model = genai.GenerativeModel("gemini-pro")
+    prompt = gemini_prompt.format(targetTicker, get_current_time())
 
-    response = model.generate_content(gemini_prompt)
-
+    response = model.generate_content(
+        prompt, safety_settings={"DANGEROUS": "block_none"}
+    )
     logger.info("Gemini response feedback: %s", response.prompt_feedback)
-    send_email(response.text, "Gemini Result", "dev@il-yo.com", "contact@il-yo.com")
+
+    trade_stock(targetTicker, 0.1, response.text)
+    send_email(
+        "Gemini Response: {} for ${}".format(response.text, targetTicker),
+        "Gemini Result",
+        "dev@il-yo.com",
+        "contact@il-yo.com",
+    )
     return response.text
 
 
@@ -122,6 +137,40 @@ def get_current_time():
     current_datetime = datetime.datetime.now()
     formatted_datetime = current_datetime.strftime("%Y-%m-%d %I:%M %p")
     return formatted_datetime
+
+
+def trade_stock(targetTicker, quantity, operationSentiment):
+    # paper=True enables paper trading
+    trading_client = TradingClient(
+        "PKI89WSFRRM5O0LSRX25", "hm1SShPKFCNVGrKGJ39ABzR4FSYaWmjYuNBxvgGE", paper=True
+    )
+
+    # BUY
+    if operationSentiment == "positive":
+        buy_request = MarketOrderRequest(
+            symbol=targetTicker,
+            qty=quantity,
+            side=OrderSide.BUY,
+            time_in_force=TimeInForce.DAY,
+        )
+
+        market_order = trading_client.submit_order(order_data=buy_request)
+        logger.info("$" + targetTicker + " purchased successfully!")
+    else:
+        logger.info("no BUY trades to do today!")
+
+    # SELL
+    if operationSentiment == "negative":
+        sell_request = MarketOrderRequest(
+            symbol=targetTicker,
+            qty=quantity,
+            side=OrderSide.SELL,
+            time_in_force=TimeInForce.DAY,
+        )
+        market_order = trading_client.submit_order(order_data=sell_request)
+        logger.info("$" + targetTicker + " sold successfully!")
+    else:
+        logger.info("no SELL trades to do today!")
 
 
 def _init_logger():

@@ -10,3 +10,5 @@ ipython
 python-dotenv
 jupyter_client
 google-generativeai
+alpaca-py
+alpaca
