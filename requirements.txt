@@ -9,3 +9,4 @@ jupyter
 ipython
 python-dotenv
 jupyter_client
+google-generativeai
