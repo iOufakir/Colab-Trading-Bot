@@ -24,7 +24,7 @@ outputFile = "./data/smartBot.ipynb"
 
 targetTicker = "NVDA"
 gemini_prompt = """
-Context: As a financial data model, is it a good idea to buy {0} stock based on the current date/time? Do quick market research, check Yahoo data, analytics and any provided data and give me a quick response.
+Context: As a financial data model, is it a good idea to buy {0} stock based on the current date/time? Do quick market research, check Yahoo data, analytics and any provided data and give me a quick response. Consider checking financial health, growth potential and industry trends regarding {0} stock, any recent news or events affecting the stock will be appreciated.
 
 Details: Reply with one word: positive, neutral or negative. (positive to buy, and negative to sell)
 
